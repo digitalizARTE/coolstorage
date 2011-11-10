@@ -29,6 +29,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Data;
 
 namespace Vici.CoolStorage
 {
@@ -48,9 +49,11 @@ namespace Vici.CoolStorage
 			_parameterMap = new Dictionary<string, CSParameter>();
 
 			foreach (CSParameter parameter in _parameterList)
-				_parameterMap.Add(parameter.Name, parameter);
+				//_parameterMap.Add(parameter.Name, parameter);
+				_parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(parameter.Name), parameter);
 		}
 
+        #region Constructor
 		public CSParameterCollection()
 		{
 		}
@@ -123,9 +126,11 @@ namespace Vici.CoolStorage
 			foreach (CSParameter param in parameters)
 			{
 				_parameterList.Add(param);
-				_parameterMap.Add(param.Name, param);
+				//_parameterMap.Add(param.Name, param);
+				_parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(param.Name), param);
 			}
         }
+        #endregion Constructor
 
 		public CSParameter Add()
 		{
@@ -136,7 +141,8 @@ namespace Vici.CoolStorage
         {
             CSParameter param = new CSParameter(parameterName);
 
-        	_parameterMap.Add(param.Name, param);
+        	//_parameterMap.Add(param.Name, param);
+			_parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(param.Name), param);
 			_parameterList.Add(param);
 
             return param;
@@ -146,40 +152,135 @@ namespace Vici.CoolStorage
         {
             CSParameter param = new CSParameter(paramName,paramValue);
 
-            _parameterMap.Add(param.Name, param);
+            //_parameterMap.Add(param.Name, param);
+			_parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(param.Name), param);
             _parameterList.Add(param);
         }
 
         public void Add(CSParameter parameter)
         {
             Add(parameter.Name, parameter.Value);
+            CSParameter newParam = this[parameter.Name];
+            newParam.Direction = parameter.Direction;
+            newParam.Precision = parameter.Precision;
+            newParam.Scale = parameter.Scale;
+            newParam.Size = parameter.Size;
         }
 
-		public void Add(CSParameterCollection parameters)
-		{
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameters"></param>
+        public void Add(CSParameterCollection parameters)
+        {
+            CSParameter newParam;
             if (parameters != null)
             {
-                foreach (CSParameter param in parameters)
-                    Add(param.Name, param.Value);
+                foreach (CSParameter parameter in parameters)
+                {
+                    Add(parameter.Name, parameter.Value);
+                    newParam = this[parameter.Name];
+                    newParam.Direction = parameter.Direction;
+                    newParam.Precision = parameter.Precision;
+                    newParam.Scale = parameter.Scale;
+                    newParam.Size = parameter.Size;
+                }
             }
-		}
+        }
 
-		public CSParameter this[string name]
-		{
-			get
-			{
-				CSParameter parameter;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameterName"></param>
+        /// <returns></returns>
+        public CSParameter AddOutPut(string parameterName)
+        {
+            CSParameter param = new CSParameter(parameterName)
+            {
+                Direction = ParameterDirection.Output
+            };
 
-				_parameterMap.TryGetValue(name, out parameter);
-				
-				return parameter;
-			}
-		}
-	    
-	    public int Count
-	    {
-	        get
-	        {
+            //_parameterMap.Add(param.Name, param);
+            _parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(param.Name), param);
+            _parameterList.Add(param);
+
+            return param;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public void AddOutPut(string paramName, object paramValue)
+        {
+            CSParameter param = new CSParameter(paramName, paramValue)
+            {
+                Direction = ParameterDirection.Output
+            };
+            //_parameterMap.Add(param.Name, param);
+            _parameterMap.Add(CSConfig.MappingStrategy.ParamToInternal(param.Name), param);
+            _parameterList.Add(param);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameter"></param>
+        public void AddOutPut(CSParameter parameter)
+        {
+            AddOutPut(parameter.Name, parameter.Value);
+            CSParameter newParam = this[parameter.Name];
+            newParam.Direction = parameter.Direction;
+            newParam.Precision = parameter.Precision;
+            newParam.Scale = parameter.Scale;
+            newParam.Size = parameter.Size;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameters"></param>
+        public void AddOutPut(CSParameterCollection parameters)
+        {
+            CSParameter newParam;
+            if (parameters != null)
+            {
+                foreach (CSParameter parameter in parameters)
+                {
+                    AddOutPut(parameter.Name, parameter.Value);
+                    newParam = this[parameter.Name];
+                    newParam.Direction = parameter.Direction;
+                    newParam.Precision = parameter.Precision;
+                    newParam.Scale = parameter.Scale;
+                    newParam.Size = parameter.Size;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public CSParameter this[string name]
+        {
+            get
+            {
+                CSParameter parameter;
+                //_parameterMap.TryGetValue(name, out parameter);
+                _parameterMap.TryGetValue(CSConfig.MappingStrategy.ParamToInternal(name), out parameter);
+                return parameter;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Count
+        {
+            get
+            {
                 return _parameterList.Count;
             }       
 	    }

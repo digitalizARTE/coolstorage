@@ -48,6 +48,28 @@ namespace Vici.CoolStorage
 		public string LeftColumn;
 		public string RightColumn;
 
+        private string[] sep = new string[] { "," };
+        private List<string> _leftColumns;
+        public List<string> LeftColumns
+        {
+            get
+            {
+                if (_leftColumns == null)
+                    Array.ForEach<string>(LeftColumn.Split(sep, StringSplitOptions.RemoveEmptyEntries), (_leftColumns = new List<string>()).Add);
+                return _leftColumns;
+            }
+        }
+        private List<string> _rightColumns;
+
+        public List<string> RightColumns
+        {
+            get
+            {
+                if (_rightColumns == null)
+                    Array.ForEach<string>(RightColumn.Split(sep, StringSplitOptions.RemoveEmptyEntries), (_rightColumns = new List<string>()).Add);
+                return _rightColumns;
+            }
+        }
 		public CSJoin()
 		{
             _leftAlias = CSNameGenerator.NextTableAlias;
@@ -148,9 +170,14 @@ namespace Vici.CoolStorage
 				}
 
 				expr += rightSchema.DB.QuoteTable(RightTable) + " " + _rightAlias + " ON ";
-
-				expr += _leftAlias + "." + leftSchema.DB.QuoteField(LeftColumn) + " = " + _rightAlias + "." + rightSchema.DB.QuoteField(RightColumn);
-
+				//expr += _leftAlias + "." + leftSchema.DB.QuoteField(LeftColumn) + " = " + _rightAlias + "." + rightSchema.DB.QuoteField(RightColumn);
+                int len = LeftColumns.Count;
+                for (int i = 0; i < len; i++)
+                {
+                    expr += String.Format("{0}.{1} = {2}.{3}", LeftAlias, leftSchema.DB.QuoteField(LeftColumns[i]), RightAlias, rightSchema.DB.QuoteField(RightColumns[i]));
+                    if (i < len - 1 && len > 1)
+                        expr += " AND ";
+                }
 				return expr;
 			}
 		}

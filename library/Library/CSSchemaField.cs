@@ -287,5 +287,9 @@ namespace Vici.CoolStorage
 					return "#"+MappedColumn.Name;
 			}
 		}
+        public override string ToString()
+        {
+            return string.Format("CSSchemaField: Name:{0}", Name);
+        }
 	}
 }

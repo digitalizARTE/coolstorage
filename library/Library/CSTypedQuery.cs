@@ -38,7 +38,8 @@ namespace Vici.CoolStorage
 
 		public static T[] Run(CSParameterCollection parameters)
 		{
-			return CSDatabase.RunQuery<T>(null,parameters);
+			string sql = CSHelper.GetQueryExpression<T>();
+			return CSDatabase.RunQuery<T>(sql,parameters);
 		}
 
 		public static T[] Run(string paramName, object paramValue)
@@ -73,7 +74,8 @@ namespace Vici.CoolStorage
 
 		public static T RunSingle(CSParameterCollection parameters)
 		{
-			return CSDatabase.RunSingleQuery<T>(null, parameters);
+			string sql = CSHelper.GetQueryExpression<CSTypedQuery<T>>();
+			return CSDatabase.RunSingleQuery<T>(sql, parameters);
 		}
 
 		public static T RunSingle(params CSParameter[] parameters)

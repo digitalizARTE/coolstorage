@@ -138,6 +138,8 @@ namespace Vici.CoolStorage
                 _classType = objType;
             else
                 _classType = objType.BaseType;
+				
+			//_classType = GetClassType(objType, ref _nonAbstract);
 
             CreateContext();
 
@@ -146,6 +148,26 @@ namespace Vici.CoolStorage
             CreateFields();
 
             CreateColumnsToRead();
+        }
+		
+		private Type GetClassType(Type objType, ref bool nonAbstract)
+		{
+			var classType = objType;
+
+			while(objType != null && objType.BaseType.IsGenericType)
+			{
+				objType = objType.BaseType;
+				if (objType.BaseType.GetGenericTypeDefinition() == typeof(CSObject<>))
+				{
+					nonAbstract = true;
+					break;
+				}
+			}	
+
+			if (!objType.IsAbstract)
+				classType = GetClassType(classType.BaseType, ref nonAbstract);
+
+			return classType;
         }
 
         internal static CSSchema Get(Type objectType)
@@ -156,6 +178,10 @@ namespace Vici.CoolStorage
             lock (_staticLock)
             {
                 CSSchema schema;
+                if (objectType.Namespace.Equals("Vici.CoolStorage.Generated", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    objectType = objectType.BaseType;
+                }
 
                 if (!_schemaMap.TryGetValue(objectType, out schema))
                 {
@@ -163,6 +189,7 @@ namespace Vici.CoolStorage
 
                     _schemaMap[objectType] = schema;
 
+                    //TODO: DAE 2010-09-30 - Modificar para soportar claves compuestas
                     schema.CreateRelations();
                 }
 
@@ -188,10 +215,15 @@ namespace Vici.CoolStorage
                         throw new CSException("No MapTo() attribute defined for class " + ClassType.Name);
 
                     _tableName = mapToAttribute.Name;
-                    _context = mapToAttribute.Context;
+                    //DAE 2010-10-05 Modifico la evaluación del contexto para poder agregar en el cache mientras tengo el lockeo.
+                    //_context = mapToAttribute.Context;
+                    _context = mapToAttribute.Context ?? CSConfig.DEFAULT_CONTEXTNAME;
 
                     if (sortAttribute != null)
                         _defaultSortExpression = sortAttribute.Expression;
+                    //DAE 2010-10-05 Agrego al cache de mapeo
+                    _typeToTableMap[_classType] = TableName;
+                    _typeToContextMap[_classType] = _context;
                 }
             }
 
@@ -201,7 +233,11 @@ namespace Vici.CoolStorage
 
         private void CreateColumns()
         {
-            CSSchemaColumn[] columns = DB.GetSchemaColumns(TableName);
+            if (DB == null)
+            {
+                throw new InvalidOperationException("CSSchema: CreateColumns - DB not initialized");
+            }
+			CSSchemaColumn[] columns = DB.GetSchemaColumns(TableName);
 
 //            DataTable schemaTable = DB.GetSchemaTable(TableName);
 
@@ -283,6 +319,10 @@ namespace Vici.CoolStorage
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>DAE 2010-09-30 - Modificar para soportar claves compuestas </remarks>
         private void CreateRelations()
         {
             foreach (CSSchemaField schemaField in _fieldList)
@@ -296,6 +336,7 @@ namespace Vici.CoolStorage
                 if (schemaField.Relation.Attribute.ForeignKey != null)
                     schemaField.Relation.ForeignKey = schemaField.Relation.Attribute.ForeignKey;
 
+                schemaField.Relation.Optional = schemaField.Relation.Attribute.Optional;
                 if (schemaField.Relation.Attribute is OneToManyAttribute)
                 {
                     schemaField.Relation.RelationType = CSSchemaRelationType.OneToMany;
@@ -307,17 +348,39 @@ namespace Vici.CoolStorage
 
                     schemaField.Relation.ForeignType = collectionType.GetGenericArguments()[0];
 
+                    //DAE 2010-09-30 - Si no se parametrizo la clave local
                     if (schemaField.Relation.LocalKey == null && KeyColumns.Count == 1)
-                        schemaField.Relation.LocalKey = KeyColumns[0].Name;
+                        //DAE 2010-08-24 MappingStrategy
+                        //schemaField.Relation.LocalKey = KeyColumns[0].Name;
+                        schemaField.Relation.LocalKey = CSConfig.MappingStrategy.ColumnToInternal(KeyColumns[0].Name);
+                    else if (String.IsNullOrEmpty(schemaField.Relation.LocalKey) && KeyColumns.Count > 1)
+                        for (int i = 0; i < KeyColumns.Count; i++)
+                        {
+                            schemaField.Relation.LocalKey += CSConfig.MappingStrategy.ColumnToInternal(((CSSchemaColumn)KeyColumns[i]).Name);
+                            if (i < KeyColumns.Count)
+                                schemaField.Relation.LocalKey += ",";
+                        }
 
+                    //DAE 2010-09-30 - Agregar todas las claves 
                     if (schemaField.Relation.ForeignKey == null)
-                        schemaField.Relation.ForeignKey = schemaField.Relation.LocalKey;
+                        //DAE 2010-08-24 MappingStrategy
+                        //schemaField.Relation.ForeignKey = schemaField.Relation.LocalKey;
+                        schemaField.Relation.ForeignKey = CSConfig.MappingStrategy.ColumnToInternal(schemaField.Relation.LocalKey);
 
                     if (schemaField.Relation.LocalKey == null)
                         throw new CSException("OneToMany relation [" + schemaField.Name + "] for class [" + ClassType.Name + "] cannot be created. Local key is not supplied and no single primary key exists");
 
-                    if (_columnList[schemaField.Relation.LocalKey] == null)
-                        throw new CSException("OneToMany relation [" + schemaField.Name + "] for class [" + ClassType.Name + "] cannot be created. Local key [" + schemaField.Relation.LocalKey + "] not defined in DB");
+                    //DAE 2010-08-24 MappingStrategy
+                    //if (_columnList[schemaField.Relation.LocalKey] == null)
+
+                    //DAE 2010-10-05 Modificado para validar todas las claves
+                    //if (_columnList[CSConfig.MappingStrategy.FieldToInternal(schemaField.Relation.LocalKey)] == null)
+                    //    throw new CSException(String.Format("OneToMany relation [{0}] for class [{1}] cannot be created. Local key [{2}] not defined in DB", schemaField.Name, ClassType.Name, schemaField.Relation.LocalKey));
+                    schemaField.Relation.LocalKeys.ForEach(localkey =>
+                    {
+                        if (_columnList[CSConfig.MappingStrategy.FieldToInternal(localkey)] == null)
+                            throw new CSException(String.Format("OneToMany relation [{0}] for class [{1}] cannot be created. Local key [{2}] not defined in DB", schemaField.Name, ClassType.Name, schemaField.Relation.LocalKey));
+                    });
                 }
 
                 if (schemaField.Relation.Attribute is ManyToOneAttribute)
@@ -326,17 +389,35 @@ namespace Vici.CoolStorage
 
                     schemaField.Relation.ForeignType = schemaField.FieldType;
 
-                    if (schemaField.Relation.ForeignKey == null && Get(schemaField.FieldType).KeyColumns.Count == 1)
-                        schemaField.Relation.ForeignKey = Get(schemaField.FieldType).KeyColumns[0].Name;
-
+                    CSSchemaColumnCollection cols = Get(schemaField.FieldType).KeyColumns;
+                    //if (schemaField.Relation.ForeignKey == null && Get(schemaField.FieldType).KeyColumns.Count == 1)
+                    if (schemaField.Relation.ForeignKey == null && cols.Count == 1)
+                        schemaField.Relation.ForeignKey = cols[0].Name;
+                    else if (schemaField.Relation.ForeignKey == null && cols.Count == 1)
+                    {
+                        int iCnt = 0;
+                        foreach (CSSchemaColumn col in cols)
+                        {
+                            schemaField.Relation.ForeignKey += col.Name;
+                            if (iCnt < cols.Count)
+                                schemaField.Relation.ForeignKey += ",";
+                            iCnt++;
+                        }
+                    }
                     if (schemaField.Relation.LocalKey == null)
                         schemaField.Relation.LocalKey = schemaField.Relation.ForeignKey;
 
                     if (schemaField.Relation.ForeignKey == null)
                         throw new CSException("ManyToOne relation [" + schemaField.Name + "] for class [" + ClassType.Name + "] cannot be created. Foreign key is not supplied and related table has no single primary");
 
-                    if (_columnList[schemaField.Relation.LocalKey] == null)
+                    //DAE 2010-10-05 Validar si todas los campos que componen la clave estan cargados.
+                    //if (_columnList[schemaField.Relation.LocalKey] == null)
+                    //    throw new CSException(String.Format("ManyToOne relation [{0}] for class [{1}] cannot be created. Local key [{2}] not defined in DB", schemaField.Name, ClassType.Name, schemaField.Relation.LocalKey));
+                    schemaField.Relation.LocalKeys.ForEach(localkey =>
+                    {
+                        if (_columnList[localkey] == null)
                         throw new CSException("ManyToOne relation [" + schemaField.Name + "] for class [" + ClassType.Name + "] cannot be created. Local key [" + schemaField.Relation.LocalKey + "] not defined in DB");
+                    });
                 }
 
                 if (schemaField.Relation.Attribute is OneToOneAttribute)
@@ -354,8 +435,14 @@ namespace Vici.CoolStorage
                     if (schemaField.Relation.ForeignKey == null)
                         schemaField.Relation.ForeignKey = schemaField.Relation.LocalKey;
 
-                    if (_columnList[schemaField.Relation.LocalKey] == null)
+                    //DAE 2010-10-05 Validar si todas los campos que componen la clave estan cargados.
+                    //if (_columnList[schemaField.Relation.LocalKey] == null)
+                    //    throw new CSException(String.Format("OneToOne relation <{0}> for class <{1}> cannot be created. Local key <{2}> not defined in DB", schemaField.Name, ClassType.Name, schemaField.Relation.LocalKey));                    
+                    schemaField.Relation.LocalKeys.ForEach(localkey =>
+                    {
+                        if (_columnList[localkey] == null)
                         throw new CSException("OneToOne relation <" + schemaField.Name + "> for class <" + ClassType.Name + "> cannot be created. Local key <" + schemaField.Relation.LocalKey + "> not defined in DB");
+                    });
                 }
 
                 if (schemaField.Relation.Attribute is ManyToManyAttribute)
@@ -375,10 +462,23 @@ namespace Vici.CoolStorage
                     schemaField.Relation.PureManyToMany = ((ManyToManyAttribute)schemaField.Relation.Attribute).Pure;
 
                     if (schemaField.Relation.LocalKey == null)
-                        schemaField.Relation.LocalKey = KeyColumns[0].Name;
-
+                        //DAE 2010-10-05 - Agregar todas las claves 
+                        //schemaField.Relation.LocalKey = KeyColumns[0].Name;
+                        for (int i = 0; i < KeyColumns.Count; i++)
+                        {
+                            schemaField.Relation.LocalKey += ((CSSchemaColumn)KeyColumns[i]).Name;
+                            if (i < KeyColumns.Count)
+                                schemaField.Relation.LocalKey += ",";
+                        }
+                    //TODO DAE 2010-10-05 Validar que acción tomar en caso de que no este configurada la relación
                     if (schemaField.Relation.ForeignKey == null)
-                        schemaField.Relation.ForeignKey = schemaField.Relation.ForeignSchema.KeyColumns[0].Name;
+                        //schemaField.Relation.ForeignKey = schemaField.Relation.ForeignSchema.KeyColumns[0].Name;
+                        for (int i = 0; i < schemaField.Relation.ForeignSchema.KeyColumns.Count; i++)
+                        {
+                            schemaField.Relation.ForeignKey += ((CSSchemaColumn)schemaField.Relation.ForeignSchema.KeyColumns[i]).Name;
+                            if (i < KeyColumns.Count)
+                                schemaField.Relation.ForeignKey += ",";
+                        }
 
                     if (schemaField.Relation.LocalLinkKey == null)
                         schemaField.Relation.LocalLinkKey = schemaField.Relation.LocalKey;
@@ -386,9 +486,14 @@ namespace Vici.CoolStorage
                     if (schemaField.Relation.ForeignLinkKey == null)
                         schemaField.Relation.ForeignLinkKey = schemaField.Relation.ForeignKey;
 
-
-                    if (_columnList[schemaField.Relation.LocalKey] == null)
-                        throw new CSException("ManyToMany relation [" + schemaField.Name + "] for class [" + ClassType.Name + "] cannot be created. Local key [" + schemaField.Relation.LocalKey + "] not defined in DB");
+                    //DAE 2010-10-05 Validar si todas los campos que componen la clave estan cargados.
+                    //if (_columnList[schemaField.Relation.LocalKey] == null)
+                    //    throw new CSException(String.Format("ManyToMany relation [{0}] for class [{1}] cannot be created. Local key [{2}] not defined in DB", schemaField.Name, ClassType.Name, schemaField.Relation.LocalKey));
+                    schemaField.Relation.LocalKeys.ForEach(localkey =>
+                    {
+                        if (_columnList[localkey] == null)
+                            throw new CSException(String.Format("ManyToMany relation [{0}] for class [{1}] cannot be created. Local key [{2}] not defined in DB", schemaField.Name, ClassType.Name, localkey));
+                    });
                 }
             }
         }

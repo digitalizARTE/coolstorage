@@ -36,18 +36,20 @@ using System.Threading;
 
 namespace Vici.CoolStorage
 {
-    internal class CSFactory
+	internal partial class CSFactory
 	{
 #if !MONOTOUCH && !WINDOWS_PHONE
 		private static readonly object _syncObject = new object();
 
 		private static readonly Dictionary<Type,OpCode> _opCodeMap;
 	    private static readonly Dictionary<Type, Type> _classMap;
+        private static readonly Dictionary<string, Assembly> _assemblyMap;
 
 		static CSFactory()
 		{
             _opCodeMap = new Dictionary<Type, OpCode>();
             _classMap = new Dictionary<Type, Type>();
+            _assemblyMap = new Dictionary<string, Assembly>();
 
 			_opCodeMap[typeof(Byte)] = OpCodes.Ldind_U1;
 			_opCodeMap[typeof(Char)] = OpCodes.Ldind_I1;
@@ -64,7 +66,8 @@ namespace Vici.CoolStorage
 
         private static Type GetObjectType(Type baseType)
         {
-			Type type;
+            Type type;
+            Assembly asm;
 
             if (!_classMap.TryGetValue(baseType, out type))
 			{
@@ -75,6 +78,9 @@ namespace Vici.CoolStorage
 						type = CreateObjectClass(baseType);
 
 						_classMap.Add(baseType , type);
+                        if (!_assemblyMap.TryGetValue(type.Assembly.FullName, out asm)){
+                            _assemblyMap.Add(type.Assembly.FullName, type.Assembly);
+                        }
 					}
 				}
 			}

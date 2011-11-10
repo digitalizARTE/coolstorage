@@ -38,6 +38,7 @@ namespace Vici.CoolStorage
 	    public bool ReadOnly;
 	    public bool Hidden;
 	    public int  Size;
+        internal int ProviderType;
 
 	    public Type DataType;
 

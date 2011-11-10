@@ -35,12 +35,15 @@ namespace Vici.CoolStorage
         private readonly List<CSSchemaColumn> _columnList = new List<CSSchemaColumn>();
         private readonly Dictionary<string, CSSchemaColumn> _columnMap = new Dictionary<string, CSSchemaColumn>(StringComparer.CurrentCultureIgnoreCase);
 
-		internal CSSchemaColumn this[string columnName]
-		{
-			get
-			{
-                if (_columnMap.ContainsKey(columnName))
-                    return _columnMap[columnName];
+        internal CSSchemaColumn this[string columnName]
+        {
+            get
+            {
+                //DAE 2010-08-25 Mapping Strategy 
+                //if (_columnMap.ContainsKey(columnName))
+                //    return _columnMap[columnName];
+                if (_columnMap.ContainsKey(CSConfig.MappingStrategy.ColumnToInternal(columnName)))
+                    return _columnMap[CSConfig.MappingStrategy.ColumnToInternal(columnName)];
                 else
                     return null;
 			}
@@ -54,9 +57,11 @@ namespace Vici.CoolStorage
 			}
 		}
 
-		internal void Add(CSSchemaColumn column)
-		{
-			_columnMap[column.Name] = column;
+        internal void Add(CSSchemaColumn column)
+        {
+            //DAE 2010-08-25 Mapping Strategy 
+            //_columnMap[column.Name] = column;
+            _columnMap[CSConfig.MappingStrategy.ColumnToInternal(column.Name)] = column;
             _columnList.Add(column);
 		}
 

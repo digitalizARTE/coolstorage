@@ -260,11 +260,27 @@ namespace Vici.CoolStorage
                 {
                     case CSSchemaRelationType.OneToMany:
                         {
-                            CSParameter csParameter = parameters.Add();
+                            //DAE 2010-10-08 Soporte para claves compuestas
+                            //CSParameter csParameter = parameters.Add();
+                            //csParameter.Value = RelationObject.Data[String.Format("#{0}", Relation.LocalKey)].Value;
+                            //return new CSFilter(String.Format("{{{0}{1}}}={2}", tableAlias, Relation.ForeignKey, csParameter.Name), parameters);
 
-                            csParameter.Value = RelationObject.Data["#" + Relation.LocalKey].Value;
-
-                            return new CSFilter("{" + tableAlias + Relation.ForeignKey + "}=" + csParameter.Name, parameters);
+                            //CSFilter filter = new CSFilter();
+                            string sFilter = "";
+                            for (int i = 0; i < Relation.LocalKeys.Count; i++)
+                            {
+                                CSParameter csParameter = parameters.Add();
+                                csParameter.Value = RelationObject.Data[String.Format("#{0}", Relation.LocalKeys[i])].Value;
+                                //filter.And(String.Format("{{{0}{1}}}={2}", tableAlias, Relation.ForeignKeys[i], csParameter.Name));
+                                sFilter += String.Format("{{{0}{1}}}={2}", tableAlias, Relation.ForeignKeys[i], csParameter.Name);
+                                if (i < Relation.LocalKeys.Count - 1)
+                                {
+                                    sFilter += " AND ";
+                                }
+                            }
+                            //filter.Parameters.Add(parameters);
+                            CSFilter filter = new CSFilter(sFilter, parameters);
+                            return filter;
                         }
 
                     case CSSchemaRelationType.ManyToMany:

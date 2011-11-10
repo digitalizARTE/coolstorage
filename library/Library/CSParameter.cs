@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data;
 
 namespace Vici.CoolStorage
 {
@@ -34,8 +35,14 @@ namespace Vici.CoolStorage
 		private readonly string _name;
 		private object _value;
 
-		public CSParameter(string parameterName)
-		{
+        #region Constructor
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parameterName"></param>
+        public CSParameter(string parameterName)
+        {
+            Direction = ParameterDirection.Input;
             if (!parameterName.StartsWith("@"))
                 throw new CSException("Parameter name [" + parameterName + "] is invalid. It should start with @.");
 		    
@@ -48,6 +55,7 @@ namespace Vici.CoolStorage
 			_value = value;
 		}
 
+ #endregion Constructor
 		public string Name
 		{
 			get { return _name; }
@@ -58,6 +66,42 @@ namespace Vici.CoolStorage
 			get { return _value; }
 			set { _value = value; }
 		}
-	}
+        /// <summary>
+        /// Indica el sentido del parametro
+        /// </summary>
+        public ParameterDirection Direction
+        {
+            get;
+            set;
+        }
 
+        #region IDbDataParameter Members
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte? Precision
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte? Scale
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int? Size
+        {
+            get;
+            set;
+        }
+        #endregion         
+    }
 }

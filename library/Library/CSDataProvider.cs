@@ -31,6 +31,7 @@ using System.Transactions;
 using IsolationLevel = System.Data.IsolationLevel;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace Vici.CoolStorage
 {
@@ -51,6 +52,7 @@ namespace Vici.CoolStorage
         string GetName(int i);
         bool Read();
         object this[int i] { get; }
+		bool NextResult();
     }
 
     public interface ICSDbCommand : IDisposable
@@ -59,6 +61,7 @@ namespace Vici.CoolStorage
         int CommandTimeout { get; set; }
         ICSDbReader ExecuteReader(CommandBehavior commandBehavior);
         ICSDbReader ExecuteReader();
+		IDataParameterCollection Parameters{ get;  }
         int ExecuteNonQuery();
     }
 
@@ -88,11 +91,35 @@ namespace Vici.CoolStorage
             get { return _lastQuery; }
         }
 
+        /// <summary>
+        /// Virtual method used to create a SQL string to execute a Delete.
+        /// </summary>
+        /// <param name="tableName">
+        /// The table from which to delete the selected records.
+        /// </param>
+        /// <param name="joinList"></param>
+        /// SQL Joins string
+        /// <param name="whereClause">
+        /// SQL where clause to select records to be deleted.
+        /// </param>
+        /// <returns>
+        /// SQL command string.
+        /// </returns>
         protected internal virtual string BuildDeleteSQL(string tableName, string joinList, string whereClause)
         {
             return "delete from " + QuoteTable(tableName) + " " + (joinList ?? "") + " where " + whereClause;
         }
 
+        /// <summary>
+        /// Virtual method used to create a SQL string to execute a Update
+        /// </summary>
+        /// <param name="tableName">Table to update.</param>
+        /// <param name="columnList">List of columns to be updated.</param>
+        /// <param name="valueList">Values to be assigned to columns specified.</param>
+        /// <param name="whereClasuse">
+        /// 
+        /// </param>
+        /// <returns></returns>
         protected internal virtual string BuildUpdateSQL(string tableName, string[] columnList, string[] valueList, string whereClasuse)
         {
             string sql = "update " + QuoteTable(tableName) + " set ";
@@ -110,10 +137,34 @@ namespace Vici.CoolStorage
             return sql;
         }
 
+        /// <summary>
+        /// Create an IDbConnection <see cref="System.Data.IDbConnection"/>
+        /// </summary>
+        /// <remarks>Must be implemented by derived classes.</remarks>
+        /// <returns>An IDbConnection <see cref="System.Data.IDbConnection"/></returns>
         protected abstract ICSDbConnection CreateConnection();
+        /// <summary>
+        /// Create an IDbCommand <see cref="System.Data.IDbCommand"/>
+        /// </summary>
+        /// <remarks>Must be implemented by derived classes.</remarks>
+        /// <returns>An IDbCommand <see cref="System.Data.IDbCommand"/></returns>
         protected abstract ICSDbCommand CreateCommand(string sqlQuery, CSParameterCollection parameters);
+        /// <summary>
+        /// Empties the connection pool.
+        /// </summary>
+        /// <remarks>May be implemented by derived classes.</remarks>
         protected virtual void ClearConnectionPool() {}
 
+        /// <summary>
+        /// Represents an SQL statement that inserts a row in a table.
+        /// </summary>
+        /// <param name="tableName">The name of the table into which a row is to be inserted.</param>
+        /// <param name="columnList">An array of column names.</param>
+        /// <param name="valueList">An array of values corresponding to columns.</param>
+        /// <param name="primaryKeys"></param>
+        /// <param name="sequences"></param>
+        /// <param name="identityField"></param>
+        /// <returns></returns>
         protected internal abstract string BuildInsertSQL(string tableName, string[] columnList, string[] valueList, string[] primaryKeys, string[] sequences, string identityField);
         protected internal abstract string BuildSelectSQL(string tableName, string tableAlias, string[] columnList, string[] columnAliasList, string[] joinList, string whereClause, string orderBy, int startRow, int maxRows, bool quoteColumns, bool unOrdered);
         
@@ -229,7 +280,7 @@ namespace Vici.CoolStorage
         {
             string sqlQuery = BuildInsertSQL(tableName, columnList, valueList, primaryKeys, sequences, identityField);
 
-            if (RequiresSeperateIdentityGet)
+            if (RequiresSeperateIdentityGet && identityField !=null)
             {
                 ExecuteNonQuery(sqlQuery, parameters);
 
@@ -247,21 +298,56 @@ namespace Vici.CoolStorage
             return null;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="columnList"></param>
+        /// <param name="valueList"></param>
+        /// <param name="primaryKeys"></param>
+        /// <param name="sequences"></param>
+        /// <param name="identityField"></param>
+        /// <param name="parameters"></param>
+        /// <param name="whereClause"></param>
+        /// <returns></returns>
+        public virtual bool ExecuteUpdate(string tableName, string[] columnList, string[] valueList, CSParameterCollection parameters, CSFilter whereClause)
+        {
+            if (valueList.Length > 0)
+            {
+                string sqlQuery = BuildUpdateSQL(tableName, columnList, valueList, whereClause.Expression);
+
+                if (ExecuteNonQuery(sqlQuery, parameters) != 1)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sqlQuery"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         protected internal int ExecuteNonQuery(string sqlQuery, CSParameterCollection parameters)
         {
             long logId = Log(sqlQuery, parameters);
-
             
             try
             {
                 using (ICSDbCommand dbCommand = CreateCommandInternal(sqlQuery, parameters))
+{
                     dbCommand.ExecuteNonQuery();
-
+                    ReadOutPutParam(dbCommand, parameters);
+                }
                 return 1;
             }
-            catch (InvalidOperationException)
+            //catch (InvalidOperationException)
+            catch (Exception ex)
             {
-                return -1;
+                throw ex;
+                // DB2 This exception may be called if Journaling is not turned on for a table.
+                //return -1;
             }
             finally
             {
@@ -288,6 +374,7 @@ namespace Vici.CoolStorage
                             return (r is DBNull) ? null : r;
                         }
                     }
+                    ReadOutPutParam(dbCommand, parameters);
                 }
 
                 return null;
@@ -300,7 +387,25 @@ namespace Vici.CoolStorage
             }
         }
 
-        internal void BeginTransaction()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dbCommand"></param>
+        /// <param name="parameters"></param>
+        private void ReadOutPutParam(ICSDbCommand dbCommand, CSParameterCollection parameters)
+        {
+            parameters
+                   .Where<CSParameter>(param =>
+                   {
+                       return param.Direction.BitOn(ParameterDirection.Output);
+                   })
+                    .ForEach(param =>
+                    {
+                        param.Value = ((IDbDataParameter)dbCommand.Parameters[param.Name]).Value;
+                    });
+        }
+        
+		internal void BeginTransaction()
         {
             _transactionDepth++;
 
@@ -382,7 +487,7 @@ namespace Vici.CoolStorage
                     transactionScope.Dispose();
                 }
 
-                if (_transactionScopeStack.Count > 0)
+                if (_transactionScopeStack.Any())
                     _currentTransactionScope = _transactionScopeStack.Peek();
                 else
                     _currentTransactionScope = null;
@@ -396,7 +501,7 @@ namespace Vici.CoolStorage
                     transaction.Commit();
                 }
 
-                if (_transactionStack.Count > 0)
+                if (_transactionStack.Any())
                     _currentTransaction = _transactionStack.Peek();
                 else
                     _currentTransaction = null;
@@ -421,7 +526,7 @@ namespace Vici.CoolStorage
                     transactionScope.Dispose();
                 }
 
-                if (_transactionScopeStack.Count > 0)
+                if (_transactionScopeStack.Any())
                     _currentTransactionScope = _transactionScopeStack.Peek();
                 else
                     _currentTransactionScope = null;
@@ -435,7 +540,7 @@ namespace Vici.CoolStorage
                     transaction.Rollback();
                 }
 
-                if (_transactionStack.Count > 0)
+                if (_transactionStack.Any())
                     _currentTransaction = _transactionStack.Peek();
                 else
                     _currentTransaction = null;
@@ -455,11 +560,27 @@ namespace Vici.CoolStorage
             }
         }
 
+//		protected internal virtual DataTable GetSchemaTable(string tableName)
+//        {
+//            using (ICSDbConnection newConn = CreateConnection())
+//            {
+//                ICSDbCommand dbCommand = newConn.CreateCommand();
+//
+//                dbCommand.CommandText = "select * from " + QuoteTable(tableName);
+//
+//                using (ICSDbReader dataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly | CommandBehavior.KeyInfo))
+//                {
+//                    return dataReader.GetSchemaTable();
+//                }
+//            }
+//        }
+		
         protected internal abstract CSSchemaColumn[] GetSchemaColumns(string tableName);
 
         private static readonly object _logLock = new object();
         private static long _lastLogId;
         private static readonly Dictionary<long, DateTime> _logTimings = new Dictionary<long, DateTime>();
+        private static readonly List<string> _bufferLog = new List<string>();
 
         protected static long Log(string cmd, CSParameterCollection parameters)
         {
@@ -483,7 +604,7 @@ namespace Vici.CoolStorage
                     {
                         writer.WriteLine("{0} | {2:000000} | {1}", DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss.fff"), cmd, logId);
 
-                        if (parameters != null && parameters.Count > 0)
+                        if (parameters != null && parameters.Any())
                         {
                             StringBuilder p = new StringBuilder();
 
@@ -554,6 +675,8 @@ namespace Vici.CoolStorage
             return newList;
         }
 
+        public abstract void DeriveParameters(ICSDbCommand dbCommand);
+
         #region IDisposable Members
 
         private bool _disposed;
@@ -571,5 +694,45 @@ namespace Vici.CoolStorage
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class ParameterDirectionExtension
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pd"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool BitOn(this ParameterDirection pd, ParameterDirection value)
+        {
+            return (pd & value) == value;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class IEnumerableExtension
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumeration"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        {
+            foreach (T item in enumeration)
+            {
+                action(item);
+            }
+            return enumeration;
+        }
+
     }
 }

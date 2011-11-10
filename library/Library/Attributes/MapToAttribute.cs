@@ -1,9 +1,9 @@
 using System;
-using System.Linq;
 
 namespace Vici.CoolStorage
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property)]
+    // BER: Agregué AttributeTargets.Field para poder usar el mismo atributo
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field) ]
     public sealed class MapToAttribute : Attribute
     {
         private readonly string _name;

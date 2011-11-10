@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,8 +18,6 @@
     <SccProvider>
     </SccProvider>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -63,17 +61,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vici.Core, Version=1.0.0.11, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Vici.Core, Version=1.0.0.1031, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Vici.Core\Vici.Core.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\BooleanValueAttribute.cs" />
@@ -91,15 +88,23 @@
     <Compile Include="Attributes\OneToOneAttribute.cs" />
     <Compile Include="Attributes\OptimisticLockAttribute.cs" />
     <Compile Include="Attributes\PrefetchAttribute.cs" />
+    <Compile Include="Attributes\PrimaryKeyAttribute.cs" />
+    <Compile Include="Attributes\PrimaryKeyGeneratorAttribute.cs" />
     <Compile Include="Attributes\QueryExpressionAttribute.cs" />
     <Compile Include="Attributes\RelationAttribute.cs" />
     <Compile Include="Attributes\SequenceAttribute.cs" />
     <Compile Include="Attributes\ServerGeneratedAttribute.cs" />
     <Compile Include="Attributes\SoftDeleteAttribute.cs" />
+    <Compile Include="Attributes\SubClassAttribute.cs" />
     <Compile Include="Attributes\ToStringAttribute.cs" />
     <Compile Include="Attributes\TrimAttribute.cs" />
     <Compile Include="CSAggregate.cs" />
     <Compile Include="Attributes\IdentityAttribute.cs" />
+    <Compile Include="CSFactoryExtension.cs" />
+    <Compile Include="CSIdentityCreatedEventArgs.cs" />
+    <Compile Include="CSListGenericHelpers.cs" />
+    <Compile Include="CSManagerBase.cs" />
+    <Compile Include="CSManagerBaseOfT.cs" />
     <Compile Include="CSNameGenerator.cs" />
     <Compile Include="CSConfig.cs" />
     <Compile Include="CSDatabase.cs" />
@@ -120,6 +125,7 @@
     <Compile Include="CSObjectStringConverter.cs" />
     <Compile Include="CSParameter.cs" />
     <Compile Include="CSParameterCollection.cs" />
+    <Compile Include="CSPrimaryKey.cs" />
     <Compile Include="CSRelation.cs" />
     <Compile Include="CSSchema.cs" />
     <Compile Include="CSSchemaColumn.cs" />
@@ -132,10 +138,21 @@
     <Compile Include="CSTransaction.cs" />
     <Compile Include="CSTypedQuery.cs" />
     <Compile Include="CSDataProvider.cs" />
+    <Compile Include="CSUnitOfWork.cs" />
     <Compile Include="Drivers\CSDataProviderAccess.cs" />
     <Compile Include="Drivers\CSDataProviderSqlServer.cs" />
+    <Compile Include="IPrimaryKeyGenerator.cs" />
+    <Compile Include="IRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="ICSDataProvider.cs" />
+    <Compile Include="ICSDataProviderExtension.cs" />
+    <Compile Include="CSTypedQueryMapper.cs" />
+    <Compile Include="CSMappingStrategyBase.cs" />
+    <Compile Include="ICSMappingStrategy.cs" />
+    <Compile Include="CSMappingStrategyToLower.cs" />
+    <Compile Include="CSTypeLoader.cs" />
+    <Compile Include="CSExpressionExentions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

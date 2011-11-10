@@ -40,6 +40,13 @@ namespace Vici.CoolStorage
         private static int? _commandTimeout;
         private static bool _doLogging;
         private static string _logFileName;
+        private static string _mappingStrategyName = "Vici.CoolStorage.MappingStrategyBase";
+        private static ICSMappingStrategy _mappingStrategy;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static List<string> Decorators { get; private set; }
 
         static CSConfig()
         {
@@ -66,10 +73,59 @@ namespace Vici.CoolStorage
                 _doLogging = (configurationSection["Logging"].ToUpper() == "TRUE");
 
             if (configurationSection["LogFile"] != null)
-                _logFileName = configurationSection["LogFile"];
+            
+				_logFileName = configurationSection["LogFile"];
+            
+
+            if (configurationSection["mappingStrategyName"] != null)
+            {
+                _mappingStrategyName = configurationSection["mappingStrategyName"];
+            }
+            else
+            {
+                _mappingStrategyName = "Vici.CoolStorage.MappingStrategyBase";
+            }
+
+            int bufferLogLenght;
+            if (configurationSection["BufferLogLenght"] != null && int.TryParse(configurationSection["BufferLogLenght"], out bufferLogLenght))
+                BufferLogLenght = bufferLogLenght;
+            else
+                BufferLogLenght = 50;
+
+            int i = 1;
+            string value;
+            if (Decorators == null)
+                Decorators = new List<string>();
+            while ((value = configurationSection[String.Format("Decorator_{0}", i)]) != null)
+            {
+                //Type type = Type.GetType(value, true, true);
+                //[ber - 20101110] - Permito cargar desde otro assembly con sintaxis typename@assembly
+                CSTypeLoader.LoadType(value);
+                Decorators.Add(value);
+                i++;
+            }
 #endif
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static ICSMappingStrategy MappingStrategy
+        {
+            get
+            {
+                if (_mappingStrategy == null)
+                {
+                    Type type = Type.GetType(_mappingStrategyName, false, true);
+                    _mappingStrategy = (ICSMappingStrategy)Activator.CreateInstance(type);
+                }
+                return _mappingStrategy;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static bool UseTransactionScope
         {
             get
@@ -99,11 +155,43 @@ namespace Vici.CoolStorage
             get { return _doLogging; }
             set { _doLogging = value; }
         }
+		/// <summary>
+        /// 
+        /// </summary>
+        public static int BufferLogLenght
+        {
+            get;
+            set;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static string LogFileName
         {
-            get { return _logFileName; }
-            set { _logFileName = value; }
+            get
+            {
+                string logFileName = _logFileName;
+                if (logFileName.Contains("|"))
+                {
+                    logFileName = logFileName.Replace("|CD|", Environment.CurrentDirectory)
+                                                .Replace("|FREQY|", "{Y}")
+                                                    .Replace("|FREQM|", "{Y}{M}")
+                                                        .Replace("|FREQD|", "{Y}{M}{D}")
+                                                            .Replace("|FREQH|", "{Y}{M}{D}{H}")
+                                                            .Replace("{Y}", String.Format("{0:yyyy}", DateTime.Now))
+                                                        .Replace("{M}", String.Format("{0:MM}", DateTime.Now))
+                                                    .Replace("{D}", String.Format("{0:dd}", DateTime.Now))
+                                                .Replace("{H}", String.Format("{0:HH}", DateTime.Now));
+                }
+                return logFileName;
+            }
+            set
+            {
+                if (_logFileName == value)
+                    return;
+                _logFileName = value;
+            }
         }
 
         internal static readonly Dictionary<string, string> ColumnMappingOverrideMap = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
@@ -144,7 +232,7 @@ namespace Vici.CoolStorage
         internal static CSDataProvider GetDB(string strContext)
         {
             if (_threadData == null)
-                _threadData = new ThreadData();
+                _threadData = new ThreadData(Decorators);
 
             return _threadData.GetDB(strContext);
         }
@@ -187,6 +275,12 @@ namespace Vici.CoolStorage
             private readonly Thread _callingThread;
             private readonly Dictionary<string, CSDataProvider> _threadDbMap = new Dictionary<string, CSDataProvider>(StringComparer.CurrentCultureIgnoreCase);
 
+            private List<string> Decorators { get; set; }
+
+            #region Constructor
+            /// <summary>
+            /// 
+            /// </summary>
             internal ThreadData()
             {
                 _callingThread = Thread.CurrentThread;
@@ -198,7 +292,40 @@ namespace Vici.CoolStorage
                 cleanupThread.Start();
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="decorators"></param>
+            internal ThreadData(List<string> decorators)
+                : this()
+            {
+                Decorators = decorators;
+            }
+            #endregion Constructor
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="provider"></param>
+            /// <returns></returns>
+            internal CSDataProvider ApplyDecorators(CSDataProvider provider)
+            {
+                CSDataProvider prov = provider;
+                if (Decorators != null)
+                {
+                    Decorators.ForEach(decorator =>
+                    {
+                        // [ber] 20101110 - Permito cargar desde cualquier assembly
+                        //Type type = Type.GetType(decorator, false, true);
+                        Type type = CSTypeLoader.LoadType(decorator);
+                        prov = (CSDataProvider)Activator.CreateInstance(type, prov);
+                    });
+                }
+                return prov;
+            }
+
             internal CSDataProvider GetDB(string contextName)
+            //internal ICSDataProvider GetDB(string contextName)
             {
                 lock (_globalDbMap)
                 {
@@ -229,6 +356,10 @@ namespace Vici.CoolStorage
                             string key = (contextName == DEFAULT_CONTEXTNAME) ? "Connection" : ("Connection." + contextName);
 
                             string value = configurationSection[key];
+							if (value == null)
+							{
+								throw new InvalidOperationException("CSConfig: Context has no entry in ConfigurationSection");
+							}
 
                             if (value.IndexOf('/') > 0)
                             {
@@ -254,7 +385,8 @@ namespace Vici.CoolStorage
 
                 CSDataProvider db = _globalDbMap[contextName];
 
-                db = db.Clone();
+                //db = db.Clone();
+                db = ApplyDecorators(db.Clone());
 
                 _threadDbMap[contextName] = db;
 

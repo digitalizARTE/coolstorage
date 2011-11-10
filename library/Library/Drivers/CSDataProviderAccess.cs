@@ -320,6 +320,23 @@ namespace Vici.CoolStorage
             {
                 return Command.ExecuteNonQuery();
             }
+
+		#region ICSDbCommand implementation
+//		public Vici.CoolStorage.ICSDbReader ExecuteReader (System.Data.CommandBehavior commandBehavior)
+//		{
+//			throw new System.NotImplementedException ();
+//		}
+
+		public System.Data.IDataParameterCollection Parameters {
+			get {
+				throw new System.NotImplementedException ();
+			}
+		}
+		#endregion
+
+		#region IDisposable implementation
+
+		#endregion
         }
 
         private class CSAccessTransaction : ICSDbTransaction
@@ -391,7 +408,28 @@ namespace Vici.CoolStorage
                 get { return Reader[i]; }
             }
 
+		#region ICSDbReader implementation
+//		public string GetName (int i)
+//		{
+//			throw new System.NotImplementedException ();
+//		}
+
+		public bool NextResult ()
+		{
+			throw new System.NotImplementedException ();
+		}
+		#endregion
+
+		#region IDisposable implementation
+
+		#endregion
         }
 
+		#region implemented abstract members of Vici.CoolStorage.CSDataProvider
+		public override void DeriveParameters (ICSDbCommand dbCommand)
+		{
+			throw new NotImplementedException ();
+		}
+		#endregion
     }
 }

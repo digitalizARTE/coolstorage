@@ -26,6 +26,7 @@
 
 using System;
 using Vici.Core;
+using System.Reflection;
 
 namespace Vici.CoolStorage
 {
@@ -84,6 +85,14 @@ namespace Vici.CoolStorage
 				return null;
 		}
 
+        public static CSObject<T> Read(CSPrimaryKey pKey)
+        {
+            return CSFactory.Read<T>(pKey);
+        }
+        public static CSObject<T> Read(CSUnitOfWork UofW, CSPrimaryKey pKey)
+        {
+            return CSFactory.Read<T>(pKey, UofW);
+        }
         public static T ReadFirst(CSFilter filter)
         {
             CSList<T> objects = new CSList<T>(filter);
@@ -96,6 +105,32 @@ namespace Vici.CoolStorage
                 return objects[0];
         }
 
+        /// <summary>
+        /// BER: Devuelve en base a una entity y su PK el objeto fresco desde la base
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static T ReadFresh(T source){
+            CSFilter f = new CSFilter("1=1");
+            CSParameterCollection pcol = new CSParameterCollection();
+            foreach (CSSchemaColumn c in source.Schema.KeyColumns) {
+                object val = source.GetField(c.MappedField.Name);
+                if (val == null)
+                    throw new Exception("[VICI.ReadFresh] Los valores de la PK no pueden ser null para filtrar.");
+                CSParameter parameter = pcol.Add();
+                //parameter.Value = val;
+                f = f.And(String.Format("{0} = {1}", c.MappedField.Name, parameter.Name), parameter.Name, val);
+                //f.Parameters.Add(c.Name, source.GetField(c.Name));
+
+            }
+            return ReadFirst(f);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static T ReadFirst(string filter)
         {
             return ReadFirst(new CSFilter(filter));
@@ -633,6 +668,742 @@ namespace Vici.CoolStorage
 
 	}
 
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    /// <typeparam name="TKey16"></typeparam>
+    /// <typeparam name="TKey17"></typeparam>
+    /// <typeparam name="TKey18"></typeparam>
+    /// <typeparam name="TKey19"></typeparam>
+    /// <typeparam name="TKey20"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9, TKey10,
+                                            TKey11, TKey12, TKey13, TKey14, TKey15,
+                                            TKey16, TKey17, TKey18, TKey19, TKey20> : CSObject<TObject>
+                    where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <param name="key16"></param>
+        /// <param name="key17"></param>
+        /// <param name="key18"></param>
+        /// <param name="key19"></param>
+        /// <param name="key20"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15,
+                    TKey16 key16, TKey17 key17, TKey18 key18, TKey19 key19, TKey20 key20)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15,
+                        key16, key17, key18, key19, key20);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    /// <typeparam name="TKey16"></typeparam>
+    /// <typeparam name="TKey17"></typeparam>
+    /// <typeparam name="TKey18"></typeparam>
+    /// <typeparam name="TKey19"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+        TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14, TKey15,
+        TKey16, TKey17, TKey18, TKey19> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <param name="key16"></param>
+        /// <param name="key17"></param>
+        /// <param name="key18"></param>
+        /// <param name="key19"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15,
+                    TKey16 key16, TKey17 key17, TKey18 key18, TKey19 key19)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15,
+                        key16, key17, key18, key19);
+        }
+    }
+
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    /// <typeparam name="TKey16"></typeparam>
+    /// <typeparam name="TKey17"></typeparam>
+    /// <typeparam name="TKey18"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14, TKey15, TKey16, TKey17, TKey18> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <param name="key16"></param>
+        /// <param name="key17"></param>
+        /// <param name="key18"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15,
+                    TKey16 key16, TKey17 key17, TKey18 key18)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15,
+                        key16, key17, key18);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    /// <typeparam name="TKey16"></typeparam>
+    /// <typeparam name="TKey17"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+        TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14,
+        TKey15, TKey16, TKey17> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <param name="key16"></param>
+        /// <param name="key17"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15,
+                    TKey16 key16, TKey17 key17)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15,
+                        key16, key17);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    /// <typeparam name="TKey16"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+        TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14, TKey15, TKey16> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <param name="key16"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15,
+                    TKey16 key16)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15,
+                        key16);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    /// <typeparam name="TKey15"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+        TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14, TKey15> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <param name="key15"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14, TKey15 key15)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14, key15);
+        }
+    }
+
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    /// <typeparam name="TKey14"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+        TKey6, TKey7, TKey8, TKey9, TKey10,
+                                          TKey11, TKey12, TKey13, TKey14> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <param name="key14"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13, TKey14 key14)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13, key14);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    /// <typeparam name="TKey13"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9, TKey10,
+                                            TKey11, TKey12, TKey13> : CSObject<TObject>
+                    where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <param name="key13"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12, TKey13 key13)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12, key13);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    /// <typeparam name="TKey12"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9, TKey10,
+                                            TKey11, TKey12> : CSObject<TObject>
+                    where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <param name="key12"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11, TKey12 key12)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11, key12);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    /// <typeparam name="TKey11"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9, TKey10, TKey11> : CSObject<TObject>
+                    where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <param name="key11"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10,
+                    TKey11 key11)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10,
+                        key11);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    /// <typeparam name="TKey10"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9, TKey10> : CSObject<TObject>
+                          where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9, key10);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8, TKey9> : CSObject<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8, key9);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5,
+                                            TKey6, TKey7, TKey8> : CSObject<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7, TKey8 key8)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7, key8);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+                    TKey6 key6, TKey7 key7)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5,
+                        key6, key7);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> : CSObject<TObject>
+        where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <returns></returns>
+        public static TObject Read(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6)
+        {
+            return CSFactory.Read<TObject>(key1, key2, key3, key4, key5, key6);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
     public abstract class CSObject<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> : CSObject<TObject>
     where TObject : CSObject<TObject>
     {
@@ -714,7 +1485,7 @@ namespace Vici.CoolStorage
 
         public static new CSList<TObject, TKey> List(string filter, object parameters)
         {
-            return new CSList<TObject, TKey>(filter, parameters);
+            return new CSList<TObject, TKey>(filter, new CSParameterCollection( parameters));
         }
 
 		public static new CSList<TObject, TKey> List(string filter, string paramName, object paramValue)

@@ -72,11 +72,18 @@ namespace Vici.CoolStorage
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class.
+        /// </summary>
         public CSList()
             : base(CSSchema.Get(typeof(TObjectType)))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
         public CSList(string filterExpression)
             : this(new CSFilter(filterExpression))
         {
@@ -92,32 +99,68 @@ namespace Vici.CoolStorage
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="paramName1">The param name1.</param>
+        /// <param name="paramValue1">The param value1.</param>
+        /// <param name="paramName2">The param name2.</param>
+        /// <param name="paramValue2">The param value2.</param>
         public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
             : this(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="paramName1">The param name1.</param>
+        /// <param name="paramValue1">The param value1.</param>
+        /// <param name="paramName2">The param name2.</param>
+        /// <param name="paramValue2">The param value2.</param>
+        /// <param name="paramName3">The param name3.</param>
+        /// <param name="paramValue3">The param value3.</param>
         public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
             : this(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="parameters">The parameters.</param>
         public CSList(string filterExpression, CSParameterCollection parameters)
             : this(new CSFilter(filterExpression, parameters))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression.</param>
+        /// <param name="parameters">The parameters.</param>
         public CSList(string filterExpression, params CSParameter[] parameters)
             : this(new CSFilter(filterExpression, parameters))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class using a filter.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         public CSList(CSFilter filter)
             : this()
         {
             Filter = filter;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSList&lt;TEntity&gt;"/> class given a CSList of the same type.
+        /// </summary>
+        /// <param name="sourceCollection">The source collection.</param>
         public CSList(CSList<TObjectType> sourceCollection)
             : this()
         {
@@ -132,6 +175,19 @@ namespace Vici.CoolStorage
             PrefetchPaths = sourceCollection.PrefetchPaths;
         }
 
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <returns>
+        /// The element at the specified index.
+        ///   </returns>
+        ///   
+        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
+        ///   </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">
+        /// The property is set and the <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
+        ///   </exception>
         public TObjectType this[int i]
         {
             get
@@ -146,21 +202,51 @@ namespace Vici.CoolStorage
             }
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(CSFilter filter)
         {
             return FilteredBy(filter);
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter)
         {
             return FilteredBy(new CSFilter(filter));
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter, CSParameterCollection parameters)
         {
             return FilteredBy(new CSFilter(filter, parameters));
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter, params CSParameter[] parameters)
         {
             return FilteredBy(new CSFilter(filter, parameters));
@@ -171,21 +257,61 @@ namespace Vici.CoolStorage
             return FilteredBy(new CSFilter(filter, parameters));
         }
 
+		/// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="paramName">Name of the param.</param>
+        /// <param name="paramValue">The param value.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter, string paramName, object paramValue)
         {
             return FilteredBy(new CSFilter(filter, paramName, paramValue));
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="paramName1">The param name1.</param>
+        /// <param name="paramValue1">The param value1.</param>
+        /// <param name="paramName2">The param name2.</param>
+        /// <param name="paramValue2">The param value2.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter, string paramName1, object paramValue1, string paramName2, object paramValue2)
         {
             return FilteredBy(new CSFilter(filter, paramName1, paramValue1, paramName2, paramValue2));
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="paramName1">The param name1.</param>
+        /// <param name="paramValue1">The param value1.</param>
+        /// <param name="paramName2">The param name2.</param>
+        /// <param name="paramValue2">The param value2.</param>
+        /// <param name="paramName3">The param name3.</param>
+        /// <param name="paramValue3">The param value3.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(string filter, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
         {
             return FilteredBy(new CSFilter(filter, paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3));
         }
 
+        /// <summary>
+        /// Represents a new CSList generated from this list.
+        /// </summary>
+        /// <param name="predicate">The predicate.</param>
+        /// <returns>
+        /// This CSList fltered.
+        /// </returns>
         public CSList<TObjectType> Where(Predicate<TObjectType> predicate)
         {
             return FilteredBy(predicate);
@@ -724,8 +850,10 @@ namespace Vici.CoolStorage
                 CSList csList = (CSList)Activator.CreateInstance(typeof(CSList<>).MakeGenericType(objectType));
 
                 //string prefetchTableAlias = CSNameGenerator.NextTableAlias;
-
-                string prefetchFilter = DB.BuildSelectSQL(table.TableName, table.TableAlias, new[] { table.TableAlias + "." + relation.LocalKey }, new[] { CSNameGenerator.NextFieldAlias }, filterJoins.BuildJoinExpressions(), whereFilter.Expression, parsedOrderBy, StartRecord, MaxRecords, true, true);
+                List<string> joinsList = new List<string>();
+                relation.LocalKeys.ForEach(localKey => joinsList.Add(String.Format("{0}.{1}", table.TableAlias, localKey)));
+                //string prefetchFilter = DB.BuildSelectSQL(table.TableName, table.TableAlias, new[] { table.TableAlias + "." + relation.LocalKey }, new[] { CSNameGenerator.NextFieldAlias }, filterJoins.BuildJoinExpressions(), whereFilter.Expression, parsedOrderBy, StartRecord, MaxRecords, true, true);
+				string prefetchFilter = DB.BuildSelectSQL(table.TableName, table.TableAlias, joinsList.ToArray(), new[] { CSNameGenerator.NextFieldAlias }, filterJoins.BuildJoinExpressions(), whereFilter.Expression, parsedOrderBy, StartRecord, MaxRecords, true, true);
 
                 csList.PrefetchFilter = new PrefetchFilter(relation.ForeignKey, prefetchFilter, whereFilter.Parameters);
 
@@ -747,8 +875,13 @@ namespace Vici.CoolStorage
 
                 foreach (CSObject csObject in csList)
                 {
-                    object localKey = csObject.Data["#" + relation.ForeignKey].ValueDirect;
-
+                    //object localKey = csObject.Data[String.Format("#{0}", relation.ForeignKey)].ValueDirect;
+                    string localKey = "";
+                    relation.ForeignKeys.ForEach(foreignKey =>
+                    {
+                        localKey += Convert.ToString(csObject.Data[String.Format("#{0}", foreignKey)].ValueDirect);
+                    });
+                    
                     CSList relationCollection = (CSList)prefetchMap[localKey].Data[prefetchField.Name].ValueDirect;
 
                     relationCollection.AddFromPrefetch(csObject);
@@ -785,6 +918,10 @@ namespace Vici.CoolStorage
 
                 using (ICSDbReader reader = DB.CreateReader(sqlQuery, parameters))
                 {
+                    int recs = 0;
+                    bool ok = true;
+                    while (recs == 0 && ok)
+                {
                     while (reader.Read())
                     {
                         TObjectType csObject = CSObject<TObjectType>.New();
@@ -815,7 +952,10 @@ namespace Vici.CoolStorage
 
                         objectList.Add(csObject);
 
-                        csObject.Fire_ObjectRead();
+                            csObject.Fire_ObjectRead();
+                            recs++;
+                        }
+                        ok = reader.NextResult();
                     }
                 }
 
@@ -829,19 +969,29 @@ namespace Vici.CoolStorage
         {
             if (!Populated || Relation == null)
                 return;
-
+            //2010-12-13 DAE-BER Cambiamos la condición para que no entre e itere si no es necesario.  
+            if (Relation.RelationType == CSSchemaRelationType.OneToMany)
+            {
             foreach (TObjectType obj in _objectArray)
             {
-                CSFieldValue parentValue = RelationObject.Data["#" + Relation.LocalKey];
-                CSFieldValue thisValue = obj.Data["#" + Relation.ForeignKey];
+                    //TODO Modificar para Claves Compuestas
+                //CSFieldValue parentValue = RelationObject.Data["#" + Relation.LocalKey];
+                //CSFieldValue thisValue = obj.Data["#" + Relation.ForeignKey];
 
-                if (obj.IsNew || thisValue.Value == null || !thisValue.Value.Equals(parentValue.Value))
-                {
-                    if (Relation.RelationType == CSSchemaRelationType.OneToMany)
-                        thisValue.Value = parentValue.Value;
-                }
+                    //if (obj.IsNew || thisValue.Value == null || !thisValue.Value.Equals(parentValue.Value))
+                    //    if (Relation.RelationType == CSSchemaRelationType.OneToMany)
+                    //        thisValue.Value = parentValue.Value;
+
+                    for (int i = 0; i < Relation.LocalKeys.Count; i++)
+                    {
+                        CSFieldValue parentValue = RelationObject.Data[String.Format("#{0}", Relation.LocalKeys[i])];
+                        CSFieldValue thisValue = obj.Data[String.Format("#{0}", Relation.ForeignKeys[i])];
+                        if (obj.IsNew || thisValue.Value == null || !thisValue.Value.Equals(parentValue.Value))
+                            if (Relation.RelationType == CSSchemaRelationType.OneToMany)
+                                thisValue.Value = parentValue.Value;
+                    }
             }
-        }
+        }}
 
         private void OnObjectDeleted(TObjectType sender, EventArgs e)
         {
@@ -1017,6 +1167,55 @@ namespace Vici.CoolStorage
             return _objectArray.IndexOf((TObjectType)value);
         }
 
+        /// <summary>
+        /// Dados dos CSObject de un tipo dado, devuelve si tienen la misma PK
+        /// </summary>
+        /// <param name="o1"></param>
+        /// <param name="o2"></param>
+        /// <returns></returns>
+        public bool EqualsByPK(TObjectType o1, TObjectType o2) {
+            foreach (CSSchemaColumn c in o1.Schema.KeyColumns) {
+                if (!o1.Data[c.Name].Value.Equals(o2.Data[c.Name].Value))
+                    return false;
+            }
+            return true;
+        }
+        
+        /// <summary>
+        /// Devuelve el índice en la lista de un objeto dado en caso de que coincida la PK
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public int IndexOfByPK(TObjectType value) {
+            TObjectType r = FindByPK(value);
+
+            if (r != null)
+                return this.IndexOf(r);
+            else
+                return -1;
+            
+        }
+
+        /// <summary>
+        /// Obtiene un objeto de la CSLIst por PK del objeto pasado
+        /// </summary>
+        /// <returns></returns>
+        public TObjectType FindByPK(TObjectType value)
+        {
+            Populate();
+            TObjectType r = this.Find(delegate(TObjectType x)
+            {
+                return EqualsByPK(x, value);
+            });
+
+            return r;
+        }
+
+        /// <summary>     
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public int IndexOf(TObjectType value)
         {
             Populate();
@@ -1241,6 +1440,7 @@ namespace Vici.CoolStorage
             }
         }
 
+
         #endregion
 
 
@@ -1364,7 +1564,1322 @@ namespace Vici.CoolStorage
     }
 
     [Serializable]
-    public class CSList<TObject, TKey> : CSList<TObject> where TObject : CSObject<TObject>
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <param name="key10"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+            TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9, TKey10 key10)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", key1, key2, key3, key4, key5, key6, key7, key8, key9, key10));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9, TKey10>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    /// <typeparam name="TKey9"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <param name="key9"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+            TKey6 key6, TKey7 key7, TKey8 key8, TKey9 key9)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}", key1, key2, key3, key4, key5, key6, key7, key8, key9));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8, TKey9>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    /// <typeparam name="TKey8"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <param name="key8"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5,
+            TKey6 key6, TKey7 key7, TKey8 key8)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}{6}{7}{8}", key1, key2, key3, key4, key5, key6, key7, key8));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7, TKey8>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    /// <typeparam name="TKey7"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <param name="key7"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6, TKey7 key7)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}{6}{7}", key1, key2, key3, key4, key5, key6, key7));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6, TKey7>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    /// <typeparam name="TKey6"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <param name="key6"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5, TKey6 key6)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}{6}", key1, key2, key3, key4, key5, key6));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5, TKey6>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    /// <typeparam name="TKey5"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <param name="key5"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4, TKey5 key5)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}{5}", key1, key2, key3, key4, key5));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4, TKey5>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    /// <typeparam name="TKey4"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3, TKey4> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <param name="key4"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3, TKey4 key4)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}{4}", key1, key2, key3, key4));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3, TKey4> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3, TKey4>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    /// <typeparam name="TKey3"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2, TKey3> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="key3"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2, TKey3 key3)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}{3}", key1, key2, key3));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2, TKey3> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2, TKey3>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey1"></typeparam>
+    /// <typeparam name="TKey2"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey1, TKey2> : CSList<TObject> where TObject : CSObject<TObject>
     {
         public CSList()
         {
@@ -1400,11 +2915,165 @@ namespace Vici.CoolStorage
         {
         }
 
-        public CSList(string filterExpression, object parameters)
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        public CSList(CSFilter filter)
+            : base(filter)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="sourceCollection"></param>
+        public CSList(CSList<TObject> sourceCollection)
+            : base(sourceCollection)
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <returns></returns>
+        public TObject GetByKey(TKey1 key1, TKey2 key2)
+        {
+            return base.GetByKey(String.Format("{0}{1}{2}", key1, key2));
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2> FilteredBy(string filter)
+        {
+            return (CSList<TObject, TKey1, TKey2>)base.FilteredBy(filter);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2> FilteredBy(string filter, string paramName, object paramValue)
+        {
+            return (CSList<TObject, TKey1, TKey2>)base.FilteredBy(filter, paramName, paramValue);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2> FilteredBy(Predicate<TObject> predicate)
+        {
+            return (CSList<TObject, TKey1, TKey2>)base.FilteredBy(predicate);
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public new CSList<TObject, TKey1, TKey2> OrderedBy(string orderBy)
+        {
+            return (CSList<TObject, TKey1, TKey2>)base.OrderedBy(orderBy);
+        }
+    }
+
+    /// <summary>
+    /// TODO Completar documentación
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TKey"></typeparam>
+    [Serializable]
+    public class CSList<TObject, TKey> : CSList<TObject> where TObject : CSObject<TObject>
+    {
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        public CSList()
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        public CSList(string filterExpression)
+            : base(new CSFilter(filterExpression))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName"></param>
+        /// <param name="paramValue"></param>
+        public CSList(string filterExpression, string paramName, object paramValue)
+            : base(filterExpression, new CSParameterCollection(paramName, paramValue))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="paramName1"></param>
+        /// <param name="paramValue1"></param>
+        /// <param name="paramName2"></param>
+        /// <param name="paramValue2"></param>
+        /// <param name="paramName3"></param>
+        /// <param name="paramValue3"></param>
+        public CSList(string filterExpression, string paramName1, object paramValue1, string paramName2, object paramValue2, string paramName3, object paramValue3)
+            : base(filterExpression, new CSParameterCollection(paramName1, paramValue1, paramName2, paramValue2, paramName3, paramValue3))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, CSParameterCollection parameters)
             : base(new CSFilter(filterExpression, parameters))
         {
         }
 
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filterExpression"></param>
+        /// <param name="parameters"></param>
+        public CSList(string filterExpression, params CSParameter[] parameters)
+            : base(new CSFilter(filterExpression, parameters))
+        {
+        }
+
+        /// <summary>
+        /// TODO Completar documentación
+        /// </summary>
+        /// <param name="filter"></param>
         public CSList(CSFilter filter)
             : base(filter)
         {

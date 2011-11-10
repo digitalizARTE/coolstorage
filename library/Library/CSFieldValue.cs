@@ -117,7 +117,7 @@ namespace Vici.CoolStorage
 					if (value is string && _schemaField.RealType == typeof(DateTime))
 						_value = ((string)value).To(_schemaField.FieldType,"yyyy-MM-dd HH:mm:ss.FFFFFFF");
 					else
-                        _value = value.Convert(_schemaField.FieldType);
+                        _value = _schemaField.FieldType == null ? null : value.Convert(_schemaField.FieldType);
 				}
 			    else
 				    _value = null;

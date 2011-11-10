@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace Vici.CoolStorage
 {
@@ -50,7 +51,7 @@ namespace Vici.CoolStorage
 		internal string ForeignLinkKey; // for many-to-many relations
 		internal string LinkTable;      // for many-to-many relations
 		internal bool   PureManyToMany;
-
+        internal bool 	Optional = true;
 		internal Type ForeignType;
 
 		internal CSSchemaRelationType RelationType = CSSchemaRelationType.None;
@@ -70,12 +71,51 @@ namespace Vici.CoolStorage
 			Attribute = att;
 		}
 
-		internal CSSchema ForeignSchema
-		{
-			get
-			{
-				return CSSchema.Get(ForeignType);
-			}
-		}
-	}
+        internal CSSchema ForeignSchema
+        {
+            get
+            {
+                return CSSchema.Get(ForeignType);
+            }
+        }
+
+
+        private string[] sep = new string[] { "," };
+
+        private List<string> _localKeys;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> LocalKeys
+        {
+            get
+            {
+                if (_localKeys == null)
+                {
+                    Array.ForEach<string>(LocalKey.Split(sep, StringSplitOptions.RemoveEmptyEntries), (_localKeys = new List<string>()).Add);
+                }
+                return _localKeys;
+            }
+        }
+
+
+
+        private List<string> _foreignKeys;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> ForeignKeys
+        {
+            get
+            {
+                if (_foreignKeys == null)
+                {
+                    Array.ForEach<string>(ForeignKey.Split(sep, StringSplitOptions.RemoveEmptyEntries), (_foreignKeys = new List<string>()).Add);
+                }
+                return _foreignKeys;
+            }
+        }
+    }
 }

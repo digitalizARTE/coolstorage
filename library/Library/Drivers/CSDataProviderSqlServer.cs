@@ -89,11 +89,23 @@ namespace Vici.CoolStorage
 					IDbDataParameter dataParameter = sqlCommand.CreateParameter();
 
 					dataParameter.ParameterName = csParameter.Name;
-					dataParameter.Direction = ParameterDirection.Input;
-                    dataParameter.Value = ConvertParameter(csParameter.Value);
+                    //2011-05-09 - DAE - Se agrego el soporte para parametros de salida
+                    //dataParameter.Direction = ParameterDirection.Input;
+                    dataParameter.Direction = csParameter.Direction;
+                    if (csParameter.Direction.BitOn(ParameterDirection.Input))
+                        dataParameter.Value = ConvertParameter(csParameter.Value);
 
-					sqlCommand.Parameters.Add(dataParameter);
-				}
+                    if (csParameter.Size.HasValue)
+                        dataParameter.Size = csParameter.Size.Value;
+
+                    if (csParameter.Precision.HasValue)
+                        dataParameter.Precision = csParameter.Precision.Value;
+
+                    if (csParameter.Scale.HasValue)
+                        dataParameter.Scale = csParameter.Scale.Value;
+
+                    sqlCommand.Parameters.Add(dataParameter);
+                }
 
 			return new CSSqlCommand(sqlCommand);
 		}
@@ -363,6 +375,23 @@ namespace Vici.CoolStorage
             {
                 Command.Dispose();
             }
+
+		#region ICSDbCommand implementation
+//		public Vici.CoolStorage.ICSDbReader ExecuteReader (System.Data.CommandBehavior commandBehavior)
+//		{
+//			throw new System.NotImplementedException ();
+//		}
+
+		public System.Data.IDataParameterCollection Parameters {
+			get {
+				throw new System.NotImplementedException ();
+			}
+		}
+		#endregion
+
+		#region IDisposable implementation
+
+		#endregion
         }
 
         private class CSSqlTransaction : ICSDbTransaction
@@ -433,6 +462,29 @@ namespace Vici.CoolStorage
             {
                 get { return Reader[i]; }
             }
+
+		#region ICSDbReader implementation
+//		public string GetName (int i)
+//		{
+//			throw new System.NotImplementedException ();
+//		}
+
+		public bool NextResult ()
+		{
+			throw new System.NotImplementedException ();
+		}
+		#endregion
+
+		#region IDisposable implementation
+
+		#endregion
         }
+
+		#region implemented abstract members of Vici.CoolStorage.CSDataProvider
+		public override void DeriveParameters (ICSDbCommand dbCommand)
+		{
+			throw new NotImplementedException ();
+		}
+		#endregion
 	}
 }
