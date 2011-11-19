@@ -40,7 +40,7 @@ namespace Vici.CoolStorage
         private static int? _commandTimeout;
         private static bool _doLogging;
         private static string _logFileName;
-        private static string _mappingStrategyName = "Vici.CoolStorage.MappingStrategyBase";
+        private static string _mappingStrategyName = "Vici.CoolStorage.CSMappingStrategyBase";
         private static ICSMappingStrategy _mappingStrategy;
 
         /// <summary>
