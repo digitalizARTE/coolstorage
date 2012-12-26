@@ -673,8 +673,6 @@ namespace Vici.CoolStorage
                 if (!schemaColumn.IsKey && (fieldValue == null || !fieldValue.IsDirty || fieldValue.SchemaField.ReadOnly))
                     continue;
 
-                fieldValue.ValueState = CSFieldValueState.Read;
-
                 CSParameter parameter = parameters.Add();
 
                 if (fieldValue.BaseType == typeof(DateTime))
@@ -690,11 +688,14 @@ namespace Vici.CoolStorage
                 {
                     whereClause = whereClause.And(_schema.DB.QuoteField(schemaColumn.Name) + "=@" + parameter.Name.Substring(1));
                 }
-                else
+
+                if (fieldValue.IsDirty && !fieldValue.SchemaField.ReadOnly && !schemaColumn.Identity && !schemaColumn.ReadOnly)
                 {
                     fieldNames.Add(schemaColumn.Name);
                     fieldValues.Add("@" + parameter.Name.Substring(1));
                 }
+
+                fieldValue.ValueState = CSFieldValueState.Read;
             }
 
             if (whereClause.Expression.Length == 0)
